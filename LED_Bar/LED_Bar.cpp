@@ -23,12 +23,18 @@
 
 LED_Bar::LED_Bar(void)
 {
-//  _clk=clk;
-//  _dat=dat;
-  DDR_Data |= BIT_Data;
-  DDR_Clk |= BIT_Clk;
- // pinMode(_clk,OUTPUT);  //Data pin
-//  pinMode(_dat,OUTPUT);  //CLK pin
+  _clk = 9;
+  _dat = 8;
+  pinMode(9,OUTPUT);
+  pinMode(8,OUTPUT);
+}
+
+LED_Bar::LED_Bar(uint8_t clk, uint8_t dat)
+{
+  _clk=clk;
+  _dat=dat;
+  pinMode(_clk,OUTPUT);  //CLK pin
+  pinMode(_dat,OUTPUT);  //Data pin
 }
 
 void LED_Bar::set_LED_Index(unsigned int index)
@@ -83,7 +89,7 @@ void LED_Bar::set_LED_Range(unsigned int indexTo)
 {
   unsigned char i;
   
-   send16bitData(CmdMode); 
+  send16bitData(CmdMode); 
   for(i=0;i<12;i++)
   {
     if(i<indexTo)
@@ -104,7 +110,7 @@ void LED_Bar::set_LED_Range(unsigned int indexTo1,unsigned int indexTo2)
 {
   unsigned char i;
   
-  for (unsigned char j =0;j<2;j++)
+  for (unsigned char j=0;j<2;j++)
   {
     send16bitData(CmdMode); 
    if (j==0)
@@ -145,23 +151,22 @@ void LED_Bar::send16bitData(unsigned int data)
     {
         if(data&0x8000)
         {
-            PORT_Data |= BIT_Data;
+          digitalWrite(_dat, HIGH);
         }
         else
         {
-            PORT_Data &=~ BIT_Data;
+          digitalWrite(_dat, LOW);
         }
-
-        PORT_Clk ^= BIT_Clk;
+        digitalWrite(3, !digitalRead(3));
         data <<= 1;
     }
 }
 void LED_Bar::latchData(void)
 {
-    PORT_Data &=~ BIT_Data;
+  digitalWrite(_dat, LOW);
     delayMicroseconds(10);
     for(unsigned char i=0;i<8;i++)
     {
-        PORT_Data ^= BIT_Data;
+      digitalWrite(_dat, !digitalRead(_dat));
     }
 }
